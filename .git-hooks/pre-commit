@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Get a list of staged PHP files
+STAGED_PHP_FILES=$(git diff --name-only --cached --diff-filter=d | grep '\.php$')
+
+# If there are no PHP files staged, exit successfully
+if [ -z "$STAGED_PHP_FILES" ]; then
+    echo "✅ No PHP files staged. Skipping Pint check."
+    exit 0
+fi
+
+# Run Laravel Pint in test mode only on staged files
+./vendor/bin/pint --test $STAGED_PHP_FILES
+
+# Check if Pint found any unformatted code
+if [ $? -ne 0 ]; then
+    echo "❌ Code formatting issues detected in staged files. Running Pint to fix them..."
+    ./vendor/bin/pint $STAGED_PHP_FILES
+    echo "✅ Code formatted. Please stage changes and commit again."
+    exit 1
+fi
+
+echo "✅ Staged PHP files are already formatted. Proceeding with commit."
+exit 0
