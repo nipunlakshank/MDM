@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Brand extends Model
 {
@@ -12,6 +13,13 @@ class Brand extends Model
         'name',
         'status',
     ];
+
+    protected static function booted()
+    {
+        static::creating(function ($brand) {
+            $brand->user_id = Auth::id();
+        });
+    }
 
     public function items()
     {
