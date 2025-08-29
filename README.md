@@ -1,7 +1,36 @@
 # Master Data Management System
 
 ## Features
- - should update
+
+- **User Authentication**
+  - User registration, login, and logout
+  - Only authenticated users can access the system
+
+* **Role-Based Access Control**
+  * Admin and User roles
+
+- **Brands Management**
+  - Create, view (with pagination), update, and delete brands
+  - Confirmation alerts for delete actions
+
+* **Categories Management**
+  * Create, view (with pagination), update, and delete categories
+  * Confirmation alerts for delete actions
+
+- **Items Management**
+  - Create, view (with pagination), update, and delete items
+  - File attachment support for items
+  - Confirmation alerts for delete actions
+
+* **Validation**
+  * Required fields and input validation with error messages
+
+- **Search & Filters**
+  - Find items by code, name, or status
+
+* **Export Options**
+  * Export items to **Excel, CSV, and PDF**
+
 
 ## Setup Instructions
 
@@ -13,7 +42,7 @@
 
 ### Run Application Locally
 
-#### Using automated script
+#### Option 1 (Using automated script)
 
 - Clone the repository
 ```bash
@@ -26,7 +55,12 @@ cd mdm
 ./setup.sh
 ```
 
-#### Manual Setup
+- Seed the database with sample data
+```bash
+php artisan db:seed
+```
+
+#### Option 2 (Manual Setup)
 
 - Clone the repository
 ```bash
