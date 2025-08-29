@@ -125,7 +125,8 @@ class ItemResource extends Resource
         $user = auth()->user();
 
         if (!$user->isAdmin()) {
-            $query->where('user_id', $user->id);
+            $query->where('user_id', $user->id)
+                ->orWhere('status', 'Active');
         }
 
         return $query;

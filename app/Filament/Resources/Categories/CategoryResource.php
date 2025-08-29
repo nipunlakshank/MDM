@@ -80,11 +80,12 @@ class CategoryResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        // $user = auth()->user();
-        //
-        // if (!$user->isAdmin()) {
-        //     $query->where('user_id', $user->id);
-        // }
+        $user = auth()->user();
+
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id)
+                ->orWhere('status', 'Active');
+        }
 
         return $query;
     }
