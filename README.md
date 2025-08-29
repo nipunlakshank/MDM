@@ -46,8 +46,8 @@
 
 - Clone the repository
 ```bash
-git clone https://github.com/nipunlakshank/mdm.git
-cd mdm
+git clone https://github.com/nipunlakshank/MDM.git
+cd MDM
 ```
 
 - Run the setup script (for **windows users**, run in **git bash**)
@@ -64,8 +64,8 @@ php artisan db:seed
 
 - Clone the repository
 ```bash
-git clone https://github.com/nipunlakshank/mdm.git
-cd mdm
+git clone https://github.com/nipunlakshank/MDM.git
+cd MDM
 ```
 
 - Configure git hooks
