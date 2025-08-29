@@ -10,6 +10,8 @@ use App\Filament\Resources\Items\Pages\ViewItem;
 use App\Filament\Resources\Items\Schemas\ItemInfolist;
 use App\Models\Item;
 use BackedEnum;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -22,9 +24,13 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class ItemResource extends Resource
 {
@@ -116,8 +122,50 @@ class ItemResource extends Resource
 
                         BulkDeleteNotification::make($deletedCount, $skippedCount);
                     }),
+
+                ExportBulkAction::make()
+                    ->exports([
+                        ExcelExport::make()
+                            ->fromTable()
+                            ->label('Excel')
+                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX),
+                        ExcelExport::make()
+                            ->fromTable()
+                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
+                            ->label('CSV')
+                            ->withWriterType(\Maatwebsite\Excel\Excel::CSV),
+                        ExcelExport::make()
+                            ->fromTable()
+                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
+                            ->label('PDF')
+                            ->withWriterType(Pdf::class),
+                    ]),
+
+                Action::make('exportPdf')
+                    ->accessSelectedRecords(true)
+                    ->label('Export as PDF')
+                    ->icon(Heroicon::Document)
+                    ->action(function (Collection $items, HasTable $livewire) {
+                        if ($items->isEmpty()) {
+                            $items = $livewire->getFilteredTableQuery()->get();
+                        }
+                        $pdf = Pdf::loadView('exports.items-pdf', compact('items'));
+
+                        return response()->streamDownload(
+                            fn () => print ($pdf->output()),
+                            date('Y-m-d_H-i-s').'_items_export.pdf'
+                        );
+                    }),
             ]);
     }
+
+    // public function getTableBulkActions()
+    // {
+    //     return [
+    //         ExportBulkAction::make(),
+    //     ];
+    // }
 
     public static function getEloquentQuery(): Builder
     {
