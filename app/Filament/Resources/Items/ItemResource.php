@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Items;
 
+use App\Exports\ItemsExport;
 use App\Filament\Notifications\BulkDeleteNotification;
 use App\Filament\Resources\Items\Pages\CreateItem;
 use App\Filament\Resources\Items\Pages\EditItem;
@@ -12,6 +13,7 @@ use App\Models\Item;
 use BackedEnum;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -29,8 +31,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
-use pxlrbt\FilamentExcel\Exports\ExcelExport;
+use Maatwebsite\Excel\Excel;
 
 class ItemResource extends Resource
 {
@@ -102,6 +103,60 @@ class ItemResource extends Resource
                 EditAction::make(),
                 DeleteAction::make(),
             ])
+            ->headerActions([
+                ActionGroup::make([
+                    // Excel
+                    Action::make('exportExcel')
+                        ->label('Export as Excel (XLSX)')
+                        ->accessSelectedRecords()
+                        ->action(function (Collection $records, HasTable $livewire) {
+                            if ($records->isEmpty()) {
+                                $records = $livewire->getFilteredTableQuery()->get();
+                            }
+
+                            return app(Excel::class)->download(
+                                new ItemsExport($records),
+                                date('Y-m-d_H-i-s') . '_items.xlsx',
+                                Excel::XLSX
+                            );
+                        }),
+
+                    // CSV
+                    Action::make('exportCsv')
+                        ->label('Export as CSV')
+                        ->accessSelectedRecords()
+                        ->action(function (Collection $records, HasTable $livewire) {
+                            if ($records->isEmpty()) {
+                                $records = $livewire->getFilteredTableQuery()->get();
+                            }
+
+                            return app(Excel::class)->download(
+                                new ItemsExport($records),
+                                date('Y-m-d_H-i-s') . '_items.csv',
+                                Excel::CSV
+                            );
+                        }),
+
+                    // PDF
+                    Action::make('exportPdf')
+                        ->label('Export as PDF')
+                        ->accessSelectedRecords()
+                        ->action(function (Collection $records, HasTable $livewire) {
+                            if ($records->isEmpty()) {
+                                $records = $livewire->getFilteredTableQuery()->get();
+                            }
+
+                            $pdf = Pdf::loadView('exports.items-pdf', ['items' => $records]);
+
+                            return response()->streamDownload(
+                                fn () => print ($pdf->output()),
+                                date('Y-m-d_H-i-s') . '_items.pdf',
+                            );
+                        }),
+                ])
+                    ->icon(Heroicon::ArrowDownTray)
+                    ->dropdownPlacement('bottom-end'),
+            ])
             ->bulkActions([
                 DeleteBulkAction::make()
                     ->requiresConfirmation()
@@ -121,41 +176,6 @@ class ItemResource extends Resource
                         }
 
                         BulkDeleteNotification::make($deletedCount, $skippedCount);
-                    }),
-
-                ExportBulkAction::make()
-                    ->exports([
-                        ExcelExport::make()
-                            ->fromTable()
-                            ->label('Excel')
-                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
-                            ->withWriterType(\Maatwebsite\Excel\Excel::XLSX),
-                        ExcelExport::make()
-                            ->fromTable()
-                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
-                            ->label('CSV')
-                            ->withWriterType(\Maatwebsite\Excel\Excel::CSV),
-                        ExcelExport::make()
-                            ->fromTable()
-                            ->withFilename(date('Y-m-d_H-i-s').'_items_export')
-                            ->label('PDF')
-                            ->withWriterType(Pdf::class),
-                    ]),
-
-                Action::make('exportPdf')
-                    ->accessSelectedRecords(true)
-                    ->label('Export as PDF')
-                    ->icon(Heroicon::Document)
-                    ->action(function (Collection $items, HasTable $livewire) {
-                        if ($items->isEmpty()) {
-                            $items = $livewire->getFilteredTableQuery()->get();
-                        }
-                        $pdf = Pdf::loadView('exports.items-pdf', compact('items'));
-
-                        return response()->streamDownload(
-                            fn () => print ($pdf->output()),
-                            date('Y-m-d_H-i-s').'_items_export.pdf'
-                        );
                     }),
             ]);
     }
