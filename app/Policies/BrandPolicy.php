@@ -22,8 +22,7 @@ class BrandPolicy
      */
     public function view(User $user, Brand $brand): bool
     {
-        // return $user->isAdmin() || $brand->user_id === $user->id;
-        return true;
+        return $user->isAdmin() || $brand->user_id === $user->id;
     }
 
     /**

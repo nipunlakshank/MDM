@@ -22,7 +22,6 @@ class ItemPolicy
      */
     public function view(User $user, Item $item): bool
     {
-        // return true;
         return $user->isAdmin() || $item->user_id === $user->id;
     }
 
