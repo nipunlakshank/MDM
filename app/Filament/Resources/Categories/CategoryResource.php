@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Filament\Notifications\BulkDeleteNotification;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
@@ -11,7 +12,6 @@ use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -71,26 +71,7 @@ class CategoryResource extends Resource
                             }
                         }
 
-                        // Show notification based on result
-                        if ($deletedCount > 0 && $skippedCount > 0) {
-                            Notification::make()
-                                ->title('Partial Delete')
-                                ->body("Deleted {$deletedCount} record(s). {$skippedCount} record(s) were skipped because you don't have permission.")
-                                ->warning()
-                                ->send();
-                        } elseif ($deletedCount > 0) {
-                            Notification::make()
-                                ->title('Deleted')
-                                ->body("Deleted {$deletedCount} record(s).")
-                                ->success()
-                                ->send();
-                        } elseif ($skippedCount > 0) {
-                            Notification::make()
-                                ->title('No Records Deleted')
-                                ->body("You don't have permission to delete any of the selected records.")
-                                ->warning()
-                                ->send();
-                        }
+                        BulkDeleteNotification::make($deletedCount, $skippedCount);
                     }),
             ]);
     }
