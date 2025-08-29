@@ -40,12 +40,12 @@ class ItemResource extends Resource
                 ->required()
                 ->maxLength(255),
             Select::make('category_id')
-                ->relationship('category', 'name')
+                ->relationship('category', 'name', fn ($query) => $query->where('status', 'Active'))
                 ->searchable()
                 ->preload()
                 ->label('Category'),
             Select::make('brand_id')
-                ->relationship('brand', 'name')
+                ->relationship('brand', 'name', fn ($query) => $query->where('status', 'Active'))
                 ->searchable()
                 ->preload()
                 ->label('Brand'),
