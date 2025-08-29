@@ -24,6 +24,7 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class ItemResource extends Resource
 {
@@ -116,6 +117,18 @@ class ItemResource extends Resource
                         BulkDeleteNotification::make($deletedCount, $skippedCount);
                     }),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = auth()->user();
+
+        if (!$user->isAdmin()) {
+            $query->where('user_id', $user->id);
+        }
+
+        return $query;
     }
 
     public static function getRelations(): array
