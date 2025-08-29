@@ -180,13 +180,6 @@ class ItemResource extends Resource
             ]);
     }
 
-    // public function getTableBulkActions()
-    // {
-    //     return [
-    //         ExportBulkAction::make(),
-    //     ];
-    // }
-
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
