@@ -6,12 +6,13 @@ use App\Filament\Notifications\BulkDeleteNotification;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
-use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Models\Category;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -28,7 +29,21 @@ class CategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return CategoryForm::configure($schema);
+        return $schema->components([
+            TextInput::make('code')
+                ->unique()
+                ->required()
+                ->maxLength(255),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+            Select::make('status')
+                ->options([
+                    'Active' => 'Active',
+                    'Inactive' => 'Inactive',
+                ])
+                ->default('Active'),
+        ]);
     }
 
     public static function table(Table $table): Table

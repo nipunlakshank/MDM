@@ -6,12 +6,13 @@ use App\Filament\Notifications\BulkDeleteNotification;
 use App\Filament\Resources\Brands\Pages\CreateBrand;
 use App\Filament\Resources\Brands\Pages\EditBrand;
 use App\Filament\Resources\Brands\Pages\ListBrands;
-use App\Filament\Resources\Brands\Schemas\BrandForm;
 use App\Models\Brand;
 use BackedEnum;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -28,7 +29,21 @@ class BrandResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return BrandForm::configure($schema);
+        return $schema->components([
+            TextInput::make('code')
+                ->unique()
+                ->required()
+                ->maxLength(255),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+            Select::make('status')
+                ->options([
+                    'Active' => 'Active',
+                    'Inactive' => 'Inactive',
+                ])
+                ->default('Active'),
+        ]);
     }
 
     public static function table(Table $table): Table

@@ -43,6 +43,7 @@ class ItemResource extends Resource
         return $schema->components([
             TextInput::make('code')
                 ->required()
+                ->unique()
                 ->maxLength(255),
             TextInput::make('name')
                 ->required()
