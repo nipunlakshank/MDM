@@ -21,7 +21,9 @@ class Item extends Model
     protected static function booted()
     {
         static::creating(function ($item) {
-            $item->user_id = Auth::id();
+            if (!$item->user_id) {
+                $item->user_id = Auth::id();
+            }
         });
     }
 

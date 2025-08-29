@@ -17,7 +17,9 @@ class Brand extends Model
     protected static function booted()
     {
         static::creating(function ($brand) {
-            $brand->user_id = Auth::id();
+            if (!$brand->user_id) {
+                $brand->user_id = Auth::id();
+            }
         });
     }
 

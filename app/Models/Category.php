@@ -17,7 +17,9 @@ class Category extends Model
     protected static function booted()
     {
         static::creating(function ($category) {
-            $category->user_id = Auth::id();
+            if (!$category->user_id) {
+                $category->user_id = Auth::id();
+            }
         });
     }
 
